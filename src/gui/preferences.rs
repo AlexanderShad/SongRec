@@ -30,6 +30,17 @@ impl Preferences {
             current_device_name: None,
         }
     }
+
+    pub fn with_interval(interval: u64) -> Self {
+        Preferences {
+            enable_notifications: Some(true),
+            enable_mpris: Some(false),
+            buffer_size_secs: Some(12),
+            request_interval_secs: None,
+            request_interval_secs_v2: Some(interval),
+            current_device_name: None,
+        }
+    }
 }
 
 impl Default for Preferences {
@@ -103,7 +114,7 @@ impl PreferencesInterface {
                 .or(match current_preferences.request_interval_secs {
                     Some(4) => None,
                     Some(val) => Some(val),
-                    None => None
+                    None => None,
                 })
                 .or(current_preferences.request_interval_secs_v2),
             current_device_name: update_preferences

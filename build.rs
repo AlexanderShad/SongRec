@@ -1,7 +1,7 @@
 use clap::{command, Arg, ArgAction, Command};
-use gettextrs::gettext;
 use flate2::Compression;
 use flate2::GzBuilder;
+use gettextrs::gettext;
 use std::io::prelude::*;
 
 // The below is copied from src/main.rs
@@ -36,6 +36,14 @@ macro_rules! base_app {
                         .short('d')
                         .long("audio-device")
                         .help(gettext("Specify the audio device to use"))
+                )
+                .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
                 )
                 .arg(
                     Arg::new("json")
@@ -75,6 +83,14 @@ macro_rules! base_app {
                         .long("audio-device")
                         .action(ArgAction::Set)
                         .help(gettext("Specify the audio device to use"))
+                )
+                .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
                 )
                 .arg(
                     Arg::new("json")
@@ -121,6 +137,14 @@ macro_rules! base_app {
                         .short('d')
                         .long("audio-device")
                         .help(gettext("Specify the audio device to use"))
+                )
+                .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
                 )
         )
         .subcommand(

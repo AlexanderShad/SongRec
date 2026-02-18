@@ -109,6 +109,14 @@ SongRec {version}
                         .help(gettext("Specify the audio device to use"))
                 )
                 .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
+                )
+                .arg(
                     Arg::new("json")
                         .short('j')
                         .long("json")
@@ -146,6 +154,14 @@ SongRec {version}
                         .long("audio-device")
                         .action(ArgAction::Set)
                         .help(gettext("Specify the audio device to use"))
+                )
+                .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
                 )
                 .arg(
                     Arg::new("json")
@@ -192,6 +208,14 @@ SongRec {version}
                         .short('d')
                         .long("audio-device")
                         .help(gettext("Specify the audio device to use"))
+                )
+                .arg(
+                    Arg::new("request-interval")
+                        .short('i')
+                        .long("request-interval")
+                        .default_value("10")
+                        .value_parser(clap::value_parser!(u64))
+                        .help(gettext("Shazam interval between requests in seconds (increase if you are rate-limited)"))
                 )
         )
         .subcommand(
@@ -369,6 +393,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let subcommand_args = args.subcommand_matches("listen").unwrap();
             let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
+            let request_interval = *subcommand_args.get_one::<u64>("request-interval").unwrap();
             let enable_mpris = !subcommand_args.get_flag("disable-mpris");
             let enable_json = subcommand_args.get_flag("json");
             let enable_csv = subcommand_args.get_flag("csv");
@@ -378,6 +403,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 list_devices,
                 recognize_once: false,
                 audio_device,
+                request_interval,
                 input_file: None,
                 output_type: if enable_json {
                     CLIOutputType::JSON
@@ -392,6 +418,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let subcommand_args = args.subcommand_matches("recognize").unwrap();
             let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
+            let request_interval = *subcommand_args.get_one::<u64>("request-interval").unwrap();
             let input_file = subcommand_args.get_one::<String>("input_file").cloned();
             let enable_json = subcommand_args.get_flag("json");
             let enable_csv = subcommand_args.get_flag("csv");
@@ -401,6 +428,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 list_devices,
                 recognize_once: true,
                 audio_device,
+                request_interval,
                 input_file,
 
                 output_type: if enable_json {
@@ -418,12 +446,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .unwrap();
             let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
+            let request_interval = *subcommand_args.get_one::<u64>("request-interval").unwrap();
 
             cli_main(CLIParameters {
                 enable_mpris: false,
                 list_devices,
                 recognize_once: true,
                 audio_device,
+                request_interval,
                 input_file: None,
                 output_type: CLIOutputType::JSON,
             })?;
@@ -459,6 +489,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 list_devices: false,
                 recognize_once: false,
                 audio_device: None,
+                request_interval: 10,
                 input_file: None,
                 output_type: CLIOutputType::SongName,
             })?;

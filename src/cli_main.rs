@@ -34,6 +34,7 @@ pub struct CLIParameters {
     pub list_devices: bool,
     pub recognize_once: bool,
     pub audio_device: Option<String>,
+    pub request_interval: u64,
     pub input_file: Option<String>,
     pub output_type: CLIOutputType,
 }
@@ -51,7 +52,7 @@ pub fn cli_main(parameters: CLIParameters) -> Result<(), Box<dyn Error>> {
 
     let preferences_interface = Arc::new(Mutex::new(PreferencesInterface {
         preferences_file_path: None,
-        preferences: Preferences::default(),
+        preferences: Preferences::with_interval(parameters.request_interval),
     }));
 
     spawn_big_thread(move || {

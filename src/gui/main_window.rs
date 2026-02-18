@@ -105,19 +105,25 @@ impl App {
             .add_from_resource("/re/fossplant/songrec/interface.ui")
             .unwrap();
 
-        let history_list_store = builder.object("history_list_store").unwrap();
+        let history_list_store: gio::ListStore = builder.object("history_list_store").unwrap();
         let song_history_interface = Rc::new(RefCell::new(
             RecognitionHistoryInterface::new(
-                history_list_store,
+                history_list_store.clone(),
                 obtain_recognition_history_csv_path,
             )
             .unwrap(),
         ));
 
-        let favorites_list_store = builder.object("favorites_list_store").unwrap();
+        let history_selection: gtk::SingleSelection = builder.object("history_selection").unwrap();
+        history_selection.set_model(Some(&history_list_store));
+
+        let favorites_list_store: gio::ListStore = builder.object("favorites_list_store").unwrap();
         let favorites_interface = Rc::new(RefCell::new(
-            FavoritesInterface::new(favorites_list_store, obtain_favorites_csv_path).unwrap(),
+            FavoritesInterface::new(favorites_list_store.clone(), obtain_favorites_csv_path).unwrap(),
         ));
+
+        let favorites_selection: gtk::SingleSelection = builder.object("favorites_selection").unwrap();
+        favorites_selection.set_model(Some(&favorites_list_store));
 
         let ctx_selected_item: Rc<RefCell<Option<HistoryEntry>>> = Rc::new(RefCell::new(None));
         let ctx_buffered_log: Rc<RefCell<String>> = Rc::new(RefCell::new(String::new()));

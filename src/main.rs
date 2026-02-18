@@ -11,7 +11,7 @@ mod fingerprinting {
 }
 
 mod core {
-    pub mod http_thread;
+    pub mod http_task;
     pub mod logging;
     pub mod microphone_thread;
     pub mod processing_thread;

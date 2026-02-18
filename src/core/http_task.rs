@@ -99,7 +99,8 @@ pub async fn http_task(
     gui_tx: async_channel::Sender<GUIMessage>,
     microphone_tx: async_channel::Sender<MicrophoneMessage>,
 ) {
-    while let Ok(message) = http_rx.recv_blocking() { XX USE SOUP3 CF. https://github.com/marin-m/SongRec/issues/223
+    while let Ok(message) = http_rx.recv_blocking() {
+        // XX USE SOUP3 CF. https://github.com/marin-m/SongRec/issues/223
         match message {
             HTTPMessage::RecognizeSignature(signature) => {
                 match try_recognize_song(*signature) {

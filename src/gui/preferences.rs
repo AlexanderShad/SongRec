@@ -14,7 +14,8 @@ pub struct Preferences {
     pub enable_notifications: Option<bool>,
     pub enable_mpris: Option<bool>,
     pub buffer_size_secs: Option<u64>,
-    pub request_interval_secs: Option<u64>,
+    pub request_interval_secs: Option<u64>, // Legacy, before increasing default from 4 to 10
+    pub request_interval_secs_v2: Option<u64>,
     pub current_device_name: Option<String>,
 }
 
@@ -24,7 +25,7 @@ impl Preferences {
             enable_notifications: None,
             enable_mpris: None,
             buffer_size_secs: None,
-            request_interval_secs: None,
+            request_interval_secs_v2: None,
             current_device_name: None,
         }
     }
@@ -36,7 +37,8 @@ impl Default for Preferences {
             enable_notifications: Some(true),
             enable_mpris: Some(false),
             buffer_size_secs: Some(12),
-            request_interval_secs: Some(4),
+            request_interval_secs: None,
+            request_interval_secs_v2: Some(10),
             current_device_name: None,
         }
     }
@@ -94,9 +96,13 @@ impl PreferencesInterface {
             buffer_size_secs: update_preferences
                 .buffer_size_secs
                 .or(current_preferences.buffer_size_secs),
-            request_interval_secs: update_preferences
-                .request_interval_secs
-                .or(current_preferences.request_interval_secs),
+            request_interval_secs_v2: update_preferences
+                .request_interval_secs_v2
+                .or(match current_preferences.request_interval_secs {
+                    Some(4) => None,
+                    _ => _,
+                })
+                .or(current_preferences.request_interval_secs_v2),
             current_device_name: update_preferences
                 .current_device_name
                 .or(current_preferences.current_device_name),

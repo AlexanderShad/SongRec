@@ -256,10 +256,11 @@ fn write_data<T, U>(
                     twelve_seconds_buffer.to_vec(),
                 )))
                 .unwrap();
+
+                *processing_already_ongoing_borrow = true;
         }
 
         *number_unprocessed_samples = 0;
-        *processing_already_ongoing_borrow = true;
     }
 
     // Do microphone volume measurement every 24th of second (so that we can

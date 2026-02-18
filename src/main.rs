@@ -69,6 +69,7 @@ macro_rules! base_app {
     () => {
         command!()
         .about(gettext("An open-source Shazam client for Linux, written in Rust."))
+        .author("Marin M. - Fossplant.re")
         /* .help_template("\
 SongRec {version}
 {about-with-newline}
@@ -94,6 +95,13 @@ SongRec {version}
         .subcommand(
             Command::new("listen")
                 .about(gettext("Run as a command-line program listening the microphone and printing recognized songs to stdout, exposing current song info via MPRIS"))
+                .arg(
+                    Arg::new("list-devices")
+                        .short('l')
+                        .long("list-devices")
+                        .action(ArgAction::SetTrue)
+                        .help(gettext("List available audio devices and quit"))
+                )
                 .arg(
                     Arg::new("audio-device")
                         .short('d')
@@ -125,6 +133,13 @@ SongRec {version}
         .subcommand(
             Command::new("recognize")
                 .about(gettext("Recognize one song from a sound file or microphone and print its info."))
+                .arg(
+                    Arg::new("list-devices")
+                        .short('l')
+                        .long("list-devices")
+                        .action(ArgAction::SetTrue)
+                        .help(gettext("List available audio devices and quit"))
+                )
                 .arg(
                     Arg::new("audio-device")
                         .short('d')
@@ -165,6 +180,13 @@ SongRec {version}
         .subcommand(
             Command::new("microphone-to-recognized-song")
                 .about(gettext("Recognize a currently playing song using the microphone and print obtained information to the standard output"))
+                .arg(
+                    Arg::new("list-devices")
+                        .short('l')
+                        .long("list-devices")
+                        .action(ArgAction::SetTrue)
+                        .help(gettext("List available audio devices and quit"))
+                )
                 .arg(
                     Arg::new("audio-device")
                         .short('d')
@@ -276,7 +298,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             let session = soup::Session::new();
             session.set_timeout(20);
 
-            let input_file_string = subcommand_args.get_one::<String>("input_file").unwrap().clone();
+            let input_file_string = subcommand_args
+                .get_one::<String>("input_file")
+                .unwrap()
+                .clone();
 
             let main_context = glib::MainContext::new();
             let main_loop = glib::MainLoop::new(Some(&main_context), false);
@@ -314,7 +339,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .subcommand_matches("fingerprint-to-recognized-song")
                 .unwrap();
 
-            let fingerprint_string = subcommand_args.get_one::<String>("fingerprint").unwrap().clone();
+            let fingerprint_string = subcommand_args
+                .get_one::<String>("fingerprint")
+                .unwrap()
+                .clone();
 
             let session = soup::Session::new();
             session.set_timeout(20);
@@ -339,13 +367,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Some("listen") => {
             let subcommand_args = args.subcommand_matches("listen").unwrap();
+            let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
-            let enable_mpris = !subcommand_args.contains_id("disable-mpris");
-            let enable_json = subcommand_args.contains_id("json");
-            let enable_csv = subcommand_args.contains_id("csv");
+            let enable_mpris = !subcommand_args.get_flag("disable-mpris");
+            let enable_json = subcommand_args.get_flag("json");
+            let enable_csv = subcommand_args.get_flag("csv");
 
             cli_main(CLIParameters {
                 enable_mpris,
+                list_devices,
                 recognize_once: false,
                 audio_device,
                 input_file: None,
@@ -360,13 +390,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Some("recognize") => {
             let subcommand_args = args.subcommand_matches("recognize").unwrap();
+            let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
             let input_file = subcommand_args.get_one::<String>("input_file").cloned();
-            let enable_json = subcommand_args.contains_id("json");
-            let enable_csv = subcommand_args.contains_id("csv");
+            let enable_json = subcommand_args.get_flag("json");
+            let enable_csv = subcommand_args.get_flag("csv");
 
             cli_main(CLIParameters {
                 enable_mpris: false,
+                list_devices,
                 recognize_once: true,
                 audio_device,
                 input_file,
@@ -384,10 +416,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             let subcommand_args = args
                 .subcommand_matches("microphone-to-recognized-song")
                 .unwrap();
+            let list_devices = subcommand_args.get_flag("list-devices");
             let audio_device = subcommand_args.get_one::<String>("audio-device").cloned();
 
             cli_main(CLIParameters {
                 enable_mpris: false,
+                list_devices,
                 recognize_once: true,
                 audio_device,
                 input_file: None,
@@ -402,7 +436,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 log_object,
                 false,
                 subcommand_args.get_one::<String>("input_file").cloned(),
-                !subcommand_args.contains_id("disable-mpris"),
+                !subcommand_args.get_flag("disable-mpris"),
             )?;
         }
         #[cfg(feature = "gui")]
@@ -412,7 +446,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     log_object,
                     true,
                     subcommand_args.get_one::<String>("input_file").cloned(),
-                    !subcommand_args.contains_id("disable-mpris"),
+                    !subcommand_args.get_flag("disable-mpris"),
                 )?;
             } else {
                 gui_main(log_object, true, None, true)?;
@@ -422,6 +456,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         None => {
             cli_main(CLIParameters {
                 enable_mpris: true,
+                list_devices: false,
                 recognize_once: false,
                 audio_device: None,
                 input_file: None,

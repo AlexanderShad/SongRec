@@ -31,6 +31,7 @@ pub enum CLIOutputType {
 
 pub struct CLIParameters {
     pub enable_mpris: bool,
+    pub list_devices: bool,
     pub recognize_once: bool,
     pub audio_device: Option<String>,
     pub input_file: Option<String>,
@@ -93,7 +94,8 @@ pub fn cli_main(parameters: CLIParameters) -> Result<(), Box<dyn Error>> {
 
     if let Some(ref filename) = parameters.input_file {
         processing_tx
-            .try_send(ProcessingMessage::ProcessAudioFile(filename.to_string())).unwrap();
+            .try_send(ProcessingMessage::ProcessAudioFile(filename.to_string()))
+            .unwrap();
     }
 
     let main_loop = glib::MainLoop::new(None, false);
@@ -108,6 +110,18 @@ pub fn cli_main(parameters: CLIParameters) -> Result<(), Box<dyn Error>> {
                     // no need to start a microphone if recognizing from file
                     if input_file_name.is_some() {
                         continue;
+                    }
+                    for device in device_names.iter() {
+                        info!(
+                            "{} {} ({})",
+                            gettext("Available device:"),
+                            device.inner_name,
+                            device.display_name
+                        );
+                    }
+                    if parameters.list_devices {
+                        loop_inner.quit();
+                        break;
                     }
                     let dev_name = if let Some(dev) = &audio_dev_name {
                         let mut found: bool = false;

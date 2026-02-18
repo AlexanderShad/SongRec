@@ -113,34 +113,22 @@ pub async fn http_task(
                         gui_tx
                             .try_send(GUIMessage::SongRecognized(Box::new(recognized_song)))
                             .unwrap();
-                        gui_tx
-                            .try_send(GUIMessage::NetworkStatus(true))
-                            .unwrap();
-                        gui_tx
-                            .try_send(GUIMessage::RateLimitState(false))
-                            .unwrap();
+                        gui_tx.try_send(GUIMessage::NetworkStatus(true)).unwrap();
+                        gui_tx.try_send(GUIMessage::RateLimitState(false)).unwrap();
                     }
                     Err(error) => match error.to_string().as_str() {
                         a if a == gettext("No match for this song") => {
                             gui_tx
                                 .try_send(GUIMessage::ErrorMessage(error.to_string()))
                                 .unwrap();
-                            gui_tx
-                                .try_send(GUIMessage::NetworkStatus(true))
-                                .unwrap();
-                            gui_tx
-                                .try_send(GUIMessage::RateLimitState(false))
-                                .unwrap();
+                            gui_tx.try_send(GUIMessage::NetworkStatus(true)).unwrap();
+                            gui_tx.try_send(GUIMessage::RateLimitState(false)).unwrap();
                         }
                         a if a == gettext("Your IP has been rate-limited") => {
-                            gui_tx
-                                .try_send(GUIMessage::RateLimitState(true))
-                                .unwrap();
+                            gui_tx.try_send(GUIMessage::RateLimitState(true)).unwrap();
                         }
                         _ => {
-                            gui_tx
-                                .try_send(GUIMessage::NetworkStatus(false))
-                                .unwrap();
+                            gui_tx.try_send(GUIMessage::NetworkStatus(false)).unwrap();
                         }
                     },
                 };

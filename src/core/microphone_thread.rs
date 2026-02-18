@@ -177,9 +177,7 @@ pub fn microphone_thread(
                 // source outputs now
                 backend.set_device(&host, &device_name);
 
-                gui_tx_4
-                    .try_send(GUIMessage::MicrophoneRecording)
-                    .unwrap();
+                gui_tx_4.try_send(GUIMessage::MicrophoneRecording).unwrap();
             }
 
             MicrophoneRecordStop => {

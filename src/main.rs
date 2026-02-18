@@ -86,7 +86,7 @@ SongRec {version}
                 .short('v')
                 .long("verbose")
                 .action(ArgAction::Count)
-                .help(gettext("-v: Set the log level to DEBUG instead of WARN for SongRec-related messages\n\
+                .help(gettext("-v: Set the log level to DEBUG instead of INFO for SongRec-related messages\n\
 -vv: Set the log level to DEBUG for SongRec-related messages and INFO for library-related messages\n\
 -vvv: Set the log level to TRACE"))
         )
@@ -256,7 +256,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Set up logging
 
     let log_object: Logging = match args.get_count("verbose") {
-        0 => Logging::setup_logging(log::LevelFilter::Warn, log::LevelFilter::Warn),
+        0 => Logging::setup_logging(log::LevelFilter::Warn, log::LevelFilter::Info),
         1 => Logging::setup_logging(log::LevelFilter::Warn, log::LevelFilter::Debug),
         2 => Logging::setup_logging(log::LevelFilter::Info, log::LevelFilter::Debug),
         _ => Logging::setup_logging(log::LevelFilter::Trace, log::LevelFilter::Trace),

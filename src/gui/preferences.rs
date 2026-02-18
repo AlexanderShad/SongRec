@@ -1,5 +1,5 @@
 use gettextrs::gettext;
-use log::debug;
+use log::{debug, error};
 use serde::Deserialize;
 use serde::Serialize;
 use std::error::Error;
@@ -55,7 +55,7 @@ impl PreferencesInterface {
         match PreferencesInterface::load() {
             Ok(preferences_interface) => return preferences_interface,
             Err(e) => {
-                eprintln!("{} {}", gettext("When parsing the preferences file:"), e);
+                error!("{} {}", gettext("When parsing the preferences file:"), e);
                 return PreferencesInterface {
                     preferences_file_path: obtain_preferences_file_path().ok(),
                     preferences: Preferences::default(),
@@ -110,7 +110,7 @@ impl PreferencesInterface {
         match self.write() {
             Ok(_) => {}
             Err(e) => {
-                eprintln!("{} {}", gettext("When saving the preferences file:"), e);
+                error!("{} {}", gettext("When saving the preferences file:"), e);
             }
         }
     }

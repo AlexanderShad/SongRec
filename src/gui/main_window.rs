@@ -10,7 +10,7 @@ use std::error::Error;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
-use crate::core::http_thread::http_thread;
+use crate::core::http_task::http_task;
 use crate::core::logging::Logging;
 use crate::core::microphone_thread::microphone_thread;
 use crate::core::processing_thread::processing_thread;
@@ -491,8 +491,8 @@ impl App {
         let http_rx = self.http_rx.clone();
         let gui_tx = self.gui_tx.clone();
         let microphone_tx = self.microphone_tx.clone();
-        spawn_big_thread(move || {
-            http_thread(http_rx, gui_tx, microphone_tx);
+        glib::spawn_future_local(async move {
+            http_task(http_rx, gui_tx, microphone_tx);
         });
 
         let gui_rx = self.gui_rx.clone();

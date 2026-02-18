@@ -250,11 +250,13 @@ fn write_data<T, U>(
     if *number_unprocessed_samples >= 16000 * request_interval_secs
         && *processing_already_ongoing_borrow == false
     {
-        processing_tx
-            .try_send(ProcessingMessage::ProcessAudioSamples(Box::new(
-                twelve_seconds_buffer.to_vec(),
-            )))
-            .unwrap();
+        if !twelve_seconds_buffer.iter().all(|x| *x == 0) {
+            processing_tx
+                .try_send(ProcessingMessage::ProcessAudioSamples(Box::new(
+                    twelve_seconds_buffer.to_vec(),
+                )))
+                .unwrap();
+        }
 
         *number_unprocessed_samples = 0;
         *processing_already_ongoing_borrow = true;

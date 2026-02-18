@@ -25,6 +25,7 @@ impl Preferences {
             enable_notifications: None,
             enable_mpris: None,
             buffer_size_secs: None,
+            request_interval_secs: None,
             request_interval_secs_v2: None,
             current_device_name: None,
         }
@@ -96,11 +97,13 @@ impl PreferencesInterface {
             buffer_size_secs: update_preferences
                 .buffer_size_secs
                 .or(current_preferences.buffer_size_secs),
+            request_interval_secs: None,
             request_interval_secs_v2: update_preferences
                 .request_interval_secs_v2
                 .or(match current_preferences.request_interval_secs {
                     Some(4) => None,
-                    _ => _,
+                    Some(val) => Some(val),
+                    None => None
                 })
                 .or(current_preferences.request_interval_secs_v2),
             current_device_name: update_preferences

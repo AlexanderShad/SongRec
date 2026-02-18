@@ -38,7 +38,7 @@ pub struct CLIParameters {
 }
 
 pub fn cli_main(parameters: CLIParameters) -> Result<(), Box<dyn Error>> {
-    let (gui_tx, gui_rx) = async_channel::unbounded(); // WIP: replace with async_channel::unbounded + Receiver.recv_blocking (https://docs.rs/async-channel/latest/async_channel/struct.Receiver.html)
+    let (gui_tx, gui_rx) = async_channel::unbounded();
     let (microphone_tx, microphone_rx) = async_channel::unbounded();
     let (processing_tx, processing_rx) = async_channel::unbounded();
     let (http_tx, http_rx) = async_channel::unbounded();
@@ -66,9 +66,7 @@ pub fn cli_main(parameters: CLIParameters) -> Result<(), Box<dyn Error>> {
         processing_thread(processing_rx, http_tx, gui_tx_3);
     });
 
-    glib::spawn_future_local(async move {
-        http_thread(http_rx, gui_tx, microphone_tx_2);
-    });
+    glib::spawn_future_local(http_task(http_rx, gui_tx, microphone_tx_2));
 
     // recognize once if an input file is provided
     let do_recognize_once = parameters.recognize_once || parameters.input_file.is_some();

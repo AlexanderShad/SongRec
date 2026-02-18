@@ -491,9 +491,7 @@ impl App {
         let http_rx = self.http_rx.clone();
         let gui_tx = self.gui_tx.clone();
         let microphone_tx = self.microphone_tx.clone();
-        glib::spawn_future_local(async move {
-            http_task(http_rx, gui_tx, microphone_tx);
-        });
+        glib::spawn_future_local(http_task(http_rx, gui_tx, microphone_tx));
 
         let gui_rx = self.gui_rx.clone();
         let preferences_interface_ptr = self.preferences_interface.clone();

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-19 09:24+0100\n"
-"PO-Revision-Date: 2026-02-16 12:02+0000\n"
+"PO-Revision-Date: 2026-02-19 11:38+0000\n"
 "Last-Translator: Fjuro <fjuro@users.noreply.weblate.fossplant.re>\n"
 "Language-Team: Czech <https://weblate.fossplant.re/projects/songrec/songrec/"
 "cs/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: src/cli_main.rs:118
 msgid "Available device:"
-msgstr ""
+msgstr "Dostupné zařízení:"
 
 #: src/cli_main.rs:136
 msgid "Exiting: audio device not found"
@@ -68,6 +68,11 @@ msgid ""
 "library-related messages\n"
 "-vvv: Set the log level to TRACE"
 msgstr ""
+"-v: Nastavit úroveň protokolování na DEBUG (ladění) namísto INFO pro zprávy "
+"týkající se aplikace SongRec\n"
+"-vv: Nastavit úroveň protokolování na DEBUG pro zprávy týkající se aplikace "
+"SongRec a INFO pro zprávy týkající se knihoven\n"
+"-vvv: Nastavit úroveň protokolování na TRACE (nejpodrobnější)"
 
 #: src/main.rs:102
 msgid ""
@@ -80,7 +85,7 @@ msgstr ""
 
 #: src/main.rs:108 src/main.rs:154 src/main.rs:209
 msgid "List available audio devices and quit"
-msgstr ""
+msgstr "Vypsat dostupná zvuková zařízení a ukončit aplikaci"
 
 #: src/main.rs:114 src/main.rs:161 src/main.rs:215
 msgid "Specify the audio device to use"
@@ -91,6 +96,7 @@ msgid ""
 "Shazam interval between requests in seconds (increase if you are rate-"
 "limited)"
 msgstr ""
+"Interval Shazamu mezi žádostmi v sekundách (zvyšte, pokud jste byli omezeni)"
 
 #: src/main.rs:130 src/main.rs:177
 msgid "Enable printing full song info in JSON"
@@ -195,15 +201,15 @@ msgstr "Předána neplatná vzorkovací frekvence při kódování paketu Shazam
 
 #: src/gui/main_window.rs:239
 msgid "Application error"
-msgstr ""
+msgstr "Chyba aplikace"
 
 #: src/gui/main_window.rs:260
 msgid "Network error"
-msgstr ""
+msgstr "Chyba sítě"
 
 #: src/gui/main_window.rs:300
 msgid "Unable to enable notification icon"
-msgstr ""
+msgstr "Nepodařilo se povolit ikonu oznámení"
 
 #: src/gui/main_window.rs:635 src/gui/main_window.rs:708
 msgid "Unable to enable MPRIS support"
@@ -243,11 +249,11 @@ msgstr "Chyba při čtení oblíbených z disku:"
 
 #: src/plugins/ksni.rs:23
 msgid "Open SongRec"
-msgstr ""
+msgstr "Otevřít SongRec"
 
 #: src/plugins/ksni.rs:31
 msgid "Quit..."
-msgstr ""
+msgstr "Ukončit…"
 
 #: translations/interface.ui.h:1
 msgid "Recognize songs"
@@ -291,7 +297,7 @@ msgstr "Hledat…"
 
 #: translations/interface.ui.h:11
 msgid "Refresh available devices"
-msgstr ""
+msgstr "Obnovit všechna dostupná zařízení"
 
 #: translations/interface.ui.h:12
 msgid "Audio input"
@@ -372,38 +378,46 @@ msgid ""
 "interval\" setting when leaving SongRec running in the background to reduce "
 "your changes of getting rate-limited."
 msgstr ""
+"Při zavření okna minimalizovat aplikaci do systémové lišty pomocí KSNI "
+"namísto jejího zavření. Vezměte prosím na vědomí, že pokud necháte aplikaci "
+"SongRec běžet na pozadí, možná budete muset zvýšit nastavení „intervalu "
+"požadavků“, abyste snížili pravděpodobnost omezení vaší rychlosti."
 
 #: translations/interface.ui.h:30
 msgid "Minimize to system tray"
-msgstr ""
+msgstr "Minimalizovat do systémové lišty"
 
 #: translations/interface.ui.h:31
 msgid ""
 "Bump a song to the top of the history list and remove the former entry when "
 "the same song is detected multiple times"
 msgstr ""
+"Přesunout skladbu na začátek seznamu historie a odstranit předchozí záznam, "
+"pokud je stejná skladba detekována vícekrát"
 
 #: translations/interface.ui.h:32
 msgid "No duplicates in history"
-msgstr ""
+msgstr "Žádné duplicitní záznamy v historii"
 
 #: translations/interface.ui.h:33
 msgid "Network preferences"
-msgstr ""
+msgstr "Předvolby sítě"
 
 #: translations/interface.ui.h:34
 msgid "By default 8, increase if you are rate-limited"
-msgstr ""
+msgstr "Výchozí hodnota je 8, zvyšte, pokud jste byli omezeni"
 
 #: translations/interface.ui.h:35
 msgid "Shazam interval between requests in seconds"
-msgstr ""
+msgstr "Interval Shazamu mezi žádostmi v sekundách"
 
 #: translations/interface.ui.h:36
 msgid ""
 "By default the last 12 seconds of music are fingerprinted and sent to "
 "Shazam. Editing may have an impact on reliability"
 msgstr ""
+"Ve výchozím nastavení je posledních 12 sekund hudby identifikováno a "
+"odesláno Shazamu. Úprava může mít vliv na spolehlivost"
 
 #: translations/interface.ui.h:37
 msgid "Shazam buffer size in seconds"
@@ -411,11 +425,11 @@ msgstr "Velikost mezipaměti pro Shazam v sekundách"
 
 #: translations/interface.ui.h:38
 msgid "Settings"
-msgstr ""
+msgstr "Nastavení"
 
 #: translations/interface.ui.h:39
 msgid "_Preferences..."
-msgstr ""
+msgstr "_Předvolby…"
 
 #: translations/interface.ui.h:40
 msgid "About..."
@@ -447,7 +461,7 @@ msgstr "Kopírovat album"
 
 #: translations/interface.ui.h:47
 msgid "Delete from History"
-msgstr ""
+msgstr "Odstranit z historie"
 
 #: translations/interface.ui.h:48
 msgid "Add to Favorites"

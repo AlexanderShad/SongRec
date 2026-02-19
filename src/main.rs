@@ -49,7 +49,7 @@ mod utils {
 
 mod plugins {
     #[cfg(feature = "gui")]
-    #[cfg(unix)]
+    #[cfg(target_os = "linux")]
     pub mod ksni;
     #[cfg(feature = "mpris")]
     pub mod mpris_player;

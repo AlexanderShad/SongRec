@@ -20,6 +20,8 @@ use crate::core::thread_messages::{GUIMessage::*, *};
 use crate::gui::song_history_interface::FavoritesInterface;
 
 use crate::gui::song_history_interface::{RecognitionHistoryInterface, SongRecordInterface};
+#[cfg(target_os = "linux")]
+use crate::plugins::ksni::SystrayInterface;
 #[cfg(feature = "mpris")]
 use crate::plugins::mpris_player::{get_player, update_song};
 use crate::utils::csv_song_history::SongHistoryRecord;
@@ -58,6 +60,8 @@ struct App {
 
     ctx_selected_item: Rc<RefCell<Option<HistoryEntry>>>,
     ctx_buffered_log: Rc<RefCell<String>>,
+    #[cfg(target_os = "linux")]
+    ctx_systray_handle: Rc<RefCell<Option<ksni::Handle<SystrayInterface>>>>,
     ctx_logger_source_id: Rc<RefCell<Option<glib::source::SourceId>>>,
 
     gui_tx: async_channel::Sender<GUIMessage>,
@@ -150,6 +154,9 @@ impl App {
             favorites_interface,
             preferences_interface,
             old_preferences,
+
+            #[cfg(target_os = "linux")]
+            ctx_systray_handle: Rc::new(RefCell::new(None)),
 
             ctx_selected_item,
             ctx_buffered_log,
@@ -265,8 +272,48 @@ impl App {
     ) {
         self.setup_intercom(application, set_recording, enable_mpris_cli);
         self.setup_actions(application, enable_mpris_cli);
+        #[cfg(target_os = "linux")]
+        if self.old_preferences.enable_systray == Some(true) {
+            let window: adw::ApplicationWindow = self.builder.object("main_window").unwrap();
+            Self::setup_systray(self.ctx_systray_handle.clone(), window, self.gui_tx.clone());
+        }
         self.setup_context_menus();
         self.show_window(application);
+    }
+
+    #[cfg(target_os = "linux")]
+    fn setup_systray(
+        ctx_systray_handle: Rc<RefCell<Option<ksni::Handle<SystrayInterface>>>>,
+        window: adw::ApplicationWindow,
+        gui_tx: async_channel::Sender<GUIMessage>,
+    ) {
+        glib::spawn_future_local(async move {
+            if ctx_systray_handle.take().is_none() {
+                if let Ok(handle) = SystrayInterface::try_enable(gui_tx).await
+                {
+                    *ctx_systray_handle.borrow_mut() = Some(handle);
+                    window.set_hide_on_close(true);
+                } else {
+                    error!("{}", gettext("Unable to enable notification icon"));
+                }
+            }
+        });
+    }
+
+    #[cfg(target_os = "linux")]
+    fn unsetup_systray(
+        ctx_systray_handle: Rc<RefCell<Option<ksni::Handle<SystrayInterface>>>>,
+        window: adw::ApplicationWindow,
+    ) {
+        let window = window.clone();
+        glib::spawn_future_local(async move {
+            let ctx_systray_handle = ctx_systray_handle.clone();
+            if let Some(handle) = ctx_systray_handle.take() {
+                window.set_hide_on_close(false);
+                *ctx_systray_handle.borrow_mut() = None;
+                SystrayInterface::disable(&handle).await;
+            }
+        });
     }
 
     fn setup_context_menus(&self) {
@@ -539,7 +586,8 @@ impl App {
 
         let old_device_name = self.old_preferences.current_device_name.clone();
 
-        let window: gtk::ApplicationWindow = self.builder.object("main_window").unwrap();
+        let window: adw::ApplicationWindow = self.builder.object("main_window").unwrap();
+        let systray_setting: adw::SwitchRow = self.builder.object("systray_setting").unwrap();
         let adw_combo_row: adw::ComboRow = self.builder.object("audio_inputs").unwrap();
         let g_list_store: gio::ListStore = self.builder.object("audio_inputs_model").unwrap();
         let microphone_switch: adw::SwitchRow = self.builder.object("microphone_switch").unwrap();
@@ -555,6 +603,9 @@ impl App {
         let results_image: gtk::Image = self.builder.object("results_image").unwrap();
         let results_label: gtk::Label = self.builder.object("results_label").unwrap();
         let loopback_switch: adw::SwitchRow = self.builder.object("loopback_switch").unwrap();
+
+        #[cfg(target_os = "linux")]
+        systray_setting.set_visible(true);
 
         microphone_switch.set_active(set_recording);
 
@@ -908,6 +959,14 @@ impl App {
                             );
                         }
 
+                        ShowWindow => {
+                            window.present();
+                        }
+
+                        QuitApplication => {
+                            application.quit();
+                        }
+
                         _ => {
                             debug!("(parsing unimplemented yet): {:?}", gui_message);
                         }
@@ -1141,14 +1200,24 @@ impl App {
             .build();
 
         let gui_tx = self.gui_tx.clone();
+        let ctx_systray_handle = self.ctx_systray_handle.clone();
 
+        #[cfg(target_os = "linux")]
         let action_systray_setting = gio::ActionEntry::builder("systray-setting")
             .state(self.old_preferences.enable_systray.unwrap().to_variant())
-            .activate(move |_, action, _| {
+            .activate(move |window: &adw::ApplicationWindow, action: &gio::SimpleAction, _| {
                 let state = action.state().unwrap();
                 let action_state: bool = state.get().unwrap();
                 let new_state = !action_state; // toggle
                 action.set_state(&new_state.to_variant());
+
+                let ctx_systray_handle = ctx_systray_handle.clone();
+
+                if new_state {
+                    Self::setup_systray(ctx_systray_handle, window.clone(), gui_tx.clone());
+                } else {
+                    Self::unsetup_systray(ctx_systray_handle, window.clone());
+                }
 
                 let mut new_preference: Preferences = Preferences::new();
                 new_preference.enable_systray = Some(new_state);
@@ -1220,6 +1289,7 @@ impl App {
             action_display_shortcuts,
             action_show_preferences,
             action_notification_setting,
+            #[cfg(target_os = "linux")]
             action_systray_setting,
             action_no_dupes_setting,
             action_refresh_devices,

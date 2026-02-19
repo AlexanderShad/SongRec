@@ -546,6 +546,7 @@
                             <property name="action-name">win.systray-setting</property>
                             <property name="subtitle" translatable="yes">When closing the window, minimize to system tray using libayatana-appindicator instead of closing the app. Please note that you may have to increase the "request interval" setting when leaving SongRec running in the background to reduce your changes of getting rate-limited.</property>
                             <property name="title" translatable="yes">Minimize to system tray</property>
+                            <property name="visible">False</property>
                           </object>
                         </child>
                         <child>
@@ -768,15 +769,6 @@ Contributors https://github.com/marin-m/SongRec/graphs/contributors</property>
         <attribute name="label" translatable="yes">Remove from Favorites</attribute>
       </item>
     </section>
-  </menu>
-  <menu id="app_indicator_menu">
-    <item>
-      <attribute name="action">win.open-window</attribute>
-      <attribute name="label" translatable="yes">Open SongRec</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">Quit...</attribute>
-    </item>
   </menu>
   <object class="GtkShortcutsWindow" id="shortcuts_window">
     <property name="child">

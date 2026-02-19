@@ -217,6 +217,44 @@ impl App {
         }
     }
 
+    fn notify_application_error(
+        preferences_interface: Arc<Mutex<PreferencesInterface>>,
+        label: &str,
+        application: &adw::Application,
+    ) {
+        if preferences_interface
+            .lock()
+            .unwrap()
+            .preferences
+            .enable_notifications
+            == Some(true)
+        {
+            let notification = gio::Notification::new(&gettext("Application error"));
+            notification.set_body(Some(&label));
+            notification.set_category(Some("network.error"));
+            application.send_notification(Some("application-error"), &notification);
+        }
+    }
+
+    fn notify_network_error(
+        preferences_interface: Arc<Mutex<PreferencesInterface>>,
+        label: &str,
+        application: &adw::Application,
+    ) {
+        if preferences_interface
+            .lock()
+            .unwrap()
+            .preferences
+            .enable_notifications
+            == Some(true)
+        {
+            let notification = gio::Notification::new(&gettext("Network error"));
+            notification.set_body(Some(&label));
+            notification.set_category(Some("network.error"));
+            application.send_notification(Some("network-error"), &notification);
+        }
+    }
+
     fn on_startup(
         &self,
         application: &adw::Application,
@@ -621,12 +659,34 @@ impl App {
                                 error!("Displaying error: {}", string);
                                 let dialog = gtk::AlertDialog::builder().message(&string).build();
                                 dialog.show(Some(&window));
+
+                                if string != gettext("No match for this song") {
+                                    Self::notify_application_error(
+                                        preferences_interface_ptr.clone(),
+                                        &string,
+                                        &application.clone(),
+                                    );
+                                }
                             }
                         }
                         RateLimitState(is_rate_limited) => {
+                            if is_rate_limited && !rate_limited_message.is_visible() {
+                                Self::notify_network_error(
+                                    preferences_interface_ptr.clone(),
+                                    &rate_limited_message.label(),
+                                    &application.clone(),
+                                );
+                            }
                             rate_limited_message.set_visible(is_rate_limited);
                         }
                         NetworkStatus(network_is_reachable) => {
+                            if !network_is_reachable && !no_network_message.is_visible() {
+                                Self::notify_network_error(
+                                    preferences_interface_ptr.clone(),
+                                    &no_network_message.label(),
+                                    &application.clone(),
+                                );
+                            }
                             no_network_message.set_visible(!network_is_reachable);
 
                             #[cfg(feature = "mpris")]

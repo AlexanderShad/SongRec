@@ -289,12 +289,18 @@ impl App {
     ) {
         glib::spawn_future_local(async move {
             if ctx_systray_handle.take().is_none() {
-                if let Ok(handle) = SystrayInterface::try_enable(gui_tx).await
-                {
-                    *ctx_systray_handle.borrow_mut() = Some(handle);
-                    window.set_hide_on_close(true);
-                } else {
-                    error!("{}", gettext("Unable to enable notification icon"));
+                match SystrayInterface::try_enable(gui_tx).await {
+                    Ok(handle) => {
+                        *ctx_systray_handle.borrow_mut() = Some(handle);
+                        window.set_hide_on_close(true);
+                    }
+                    Err(err) => {
+                        error!(
+                            "{}: {:?}",
+                            gettext("Unable to enable notification icon"),
+                            err
+                        );
+                    }
                 }
             }
         });
@@ -1205,26 +1211,28 @@ impl App {
         #[cfg(target_os = "linux")]
         let action_systray_setting = gio::ActionEntry::builder("systray-setting")
             .state(self.old_preferences.enable_systray.unwrap().to_variant())
-            .activate(move |window: &adw::ApplicationWindow, action: &gio::SimpleAction, _| {
-                let state = action.state().unwrap();
-                let action_state: bool = state.get().unwrap();
-                let new_state = !action_state; // toggle
-                action.set_state(&new_state.to_variant());
+            .activate(
+                move |window: &adw::ApplicationWindow, action: &gio::SimpleAction, _| {
+                    let state = action.state().unwrap();
+                    let action_state: bool = state.get().unwrap();
+                    let new_state = !action_state; // toggle
+                    action.set_state(&new_state.to_variant());
 
-                let ctx_systray_handle = ctx_systray_handle.clone();
+                    let ctx_systray_handle = ctx_systray_handle.clone();
 
-                if new_state {
-                    Self::setup_systray(ctx_systray_handle, window.clone(), gui_tx.clone());
-                } else {
-                    Self::unsetup_systray(ctx_systray_handle, window.clone());
-                }
+                    if new_state {
+                        Self::setup_systray(ctx_systray_handle, window.clone(), gui_tx.clone());
+                    } else {
+                        Self::unsetup_systray(ctx_systray_handle, window.clone());
+                    }
 
-                let mut new_preference: Preferences = Preferences::new();
-                new_preference.enable_systray = Some(new_state);
-                gui_tx
-                    .try_send(GUIMessage::UpdatePreference(new_preference))
-                    .unwrap();
-            })
+                    let mut new_preference: Preferences = Preferences::new();
+                    new_preference.enable_systray = Some(new_state);
+                    gui_tx
+                        .try_send(GUIMessage::UpdatePreference(new_preference))
+                        .unwrap();
+                },
+            )
             .build();
 
         let gui_tx = self.gui_tx.clone();

@@ -1,6 +1,6 @@
-use ksni::TrayMethods;
 use crate::core::thread_messages::GUIMessage;
 use gettextrs::gettext;
+use ksni::TrayMethods;
 
 pub struct SystrayInterface {
     pub gui_tx: async_channel::Sender<GUIMessage>,
@@ -43,11 +43,7 @@ impl SystrayInterface {
     pub async fn try_enable(
         gui_tx: async_channel::Sender<GUIMessage>,
     ) -> Result<ksni::Handle<Self>, ksni::Error> {
-        Self {
-            gui_tx,
-        }
-        .spawn()
-        .await
+        Self { gui_tx }.disable_dbus_name(true).spawn().await
     }
 
     pub async fn disable(handle: &ksni::Handle<Self>) {

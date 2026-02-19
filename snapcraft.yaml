@@ -53,6 +53,10 @@ slots:
     name: re.fossplant.songrec
 
 plugs:
+  ksni-svc:  # name that is used with 'snap connect' on plugs side
+    bus: session
+    interface: dbus
+    name: org.kde.StatusNotifierWatcher
   desktop:
     mount-host-font-cache: false
   gnome-46-2404:

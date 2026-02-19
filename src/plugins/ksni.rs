@@ -43,7 +43,16 @@ impl SystrayInterface {
     pub async fn try_enable(
         gui_tx: async_channel::Sender<GUIMessage>,
     ) -> Result<ksni::Handle<Self>, ksni::Error> {
-        Self { gui_tx }.disable_dbus_name(true).spawn().await
+        match std::env::var("SNAP_NAME") {
+            Ok(_) => {
+                Self { gui_tx }
+                    .disable_dbus_name(true)
+                    .assume_sni_available(true)
+                    .spawn()
+                    .await
+            }
+            _ => Self { gui_tx }.disable_dbus_name(true).spawn().await,
+        }
     }
 
     pub async fn disable(handle: &ksni::Handle<Self>) {

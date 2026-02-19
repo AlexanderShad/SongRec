@@ -25,7 +25,7 @@ use crate::utils::filesystem_operations::{
     obtain_favorites_csv_path, obtain_recognition_history_csv_path,
 };
 #[cfg(feature = "mpris")]
-use crate::utils::mpris_player::{get_player, update_song};
+use crate::plugins::mpris_player::{get_player, update_song};
 
 use crate::gui::preferences::{Preferences, PreferencesInterface};
 

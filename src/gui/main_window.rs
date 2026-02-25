@@ -92,7 +92,6 @@ impl App {
             let icon_theme = gtk::IconTheme::for_display(&display);
             icon_theme.add_resource_path("/re/fossplant/songrec/");
         }
-        glib::set_prgname(Some("re.fossplant.songrec"));
 
         let builder = gtk::Builder::new();
 
@@ -180,7 +179,15 @@ impl App {
 
     fn run(self, set_recording: bool, enable_mpris_cli: bool, input_file: Option<String>) {
         let application = adw::Application::new(
-            Some("re.fossplant.songrec"),
+            // We're using a different DBus ID over Snap
+            // per request of the Snapcraft team
+            // (they don't want to allocate us the one
+            // that we had to switch to in order to
+            // get verified on Flathub)
+            Some(match std::env::var("SNAP_NAME") {
+                Ok(_) => "com.github.marinm.songrec",
+                _ => "re.fossplant.songrec",
+            }),
             gio::ApplicationFlags::HANDLES_OPEN,
         );
 

@@ -50,7 +50,7 @@ slots:
   dbus-svc: # name that is used with 'snap connect' on slots side
     interface: dbus
     bus: session
-    name: re.fossplant.songrec
+    name: com.github.marinm.songrec
 
 plugs:
   desktop:

@@ -129,6 +129,7 @@ pub async fn http_task(
                             gui_tx.try_send(GUIMessage::RateLimitState(true)).unwrap();
                         }
                         _ => {
+                            log::error!("Network reach error: {:?}", error);
                             gui_tx.try_send(GUIMessage::NetworkStatus(false)).unwrap();
                         }
                     },

@@ -84,6 +84,10 @@ impl App {
 
         log_object.connect_to_gui_logger(gui_tx.clone());
 
+        glib::set_prgname(Some(match std::env::var("SNAP_NAME") {
+            Ok(_) => "com.github.marinm.songrec",
+            _ => "re.fossplant.songrec",
+        }));
         Self::load_resources();
 
         gtk::init().unwrap();

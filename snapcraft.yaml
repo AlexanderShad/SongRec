@@ -26,7 +26,7 @@ apps:
     - snap/command-chain/gpu-2404-wrapper
     - snap/command-chain/desktop-launch
     command: bin/songrec
-    desktop: usr/share/applications/re.fossplant.songrec.desktop
+    desktop: usr/share/applications/com.github.marinm.songrec.desktop
     extensions: [gnome]
     plugs:
       - home
@@ -134,7 +134,9 @@ parts:
       snapcraftctl pull
 
       # Point icon to the correct location
-      sed -i -e 's|Icon=re.fossplant.songrec|Icon=/usr/share/icons/hicolor/scalable/apps/re.fossplant.songrec.svg|g' usr/share/applications/re.fossplant.songrec.desktop
+      mv usr/share/applications/re.fossplant.songrec.desktop usr/share/applications/com.github.marinm.songrec.desktop
+      sed -i -e 's|re.fossplant.songrec.desktop|com.github.marinm.songrec.desktop|g' usr/share/metainfo/re.fossplant.songrec.metainfo.xml
+      sed -i -e 's|Icon=re.fossplant.songrec|Icon=/usr/share/icons/hicolor/scalable/apps/re.fossplant.songrec.svg|g' usr/share/applications/com.github.marinm.songrec.desktop
 
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:
